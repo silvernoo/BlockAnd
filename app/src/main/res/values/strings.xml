@@ -9,4 +9,6 @@
     <string name="no_name">无名</string>
     <string name="undo">撤销</string>
     <string name="deleted_contact">已删除联系人</string>
+    <string name="action_logger">日志</string>
+    <string name="logger">日志</string>
 </resources>

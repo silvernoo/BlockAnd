@@ -1,6 +1,7 @@
 package com.github.blockand;
 
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -11,6 +12,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -46,8 +48,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        final ImageView space = (ImageView) findViewById(R.id.space);
         setSupportActionBar(toolbar);
+        final ImageView space = (ImageView) findViewById(R.id.space);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
 
@@ -80,17 +82,19 @@ public class MainActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-//                startService(new Intent(getBaseContext(), RingtoneService.class));
                 View view1 = View.inflate(view.getContext(), R.layout.dialog_add_block, null);
                 final EditText number = (EditText) view1.findViewById(R.id.number);
-                final AlertDialog mDialog = new AlertDialog.Builder(MainActivity.this).setView(view1)
+                AlertDialog mDialog = new AlertDialog.Builder(MainActivity.this).setView(view1)
                         .setTitle(R.string.add_block_number)
                         .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                blockListDao.addNumber(null, number.getText().toString().replaceAll("\\s", "").trim());
-                                mAdapter.changeCursor(cursor = blockListDao.loadAll(-1, -1), 0);
-                                mRecyclerView.scrollToPosition(cursor.getCount() - 1);
+                                String trim = number.getText().toString().replaceAll("\\s", "").trim();
+                                if (!TextUtils.isEmpty(trim)) {
+                                    blockListDao.addNumber(null, trim);
+                                    mAdapter.changeCursor(cursor = blockListDao.loadAll(-1, -1), 0);
+                                    mRecyclerView.scrollToPosition(cursor.getCount() - 1);
+                                }
                             }
                         })
                         .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
@@ -182,6 +186,9 @@ public class MainActivity extends AppCompatActivity {
                 public void onClick(DialogInterface dialog, int which) {
                 }
             }).setMessage("Sure?").show();
+            return true;
+        } else if (id == R.id.action_logger) {
+            startActivity(new Intent(this, LoggerActivity.class));
             return true;
         }
         return super.onOptionsItemSelected(item);

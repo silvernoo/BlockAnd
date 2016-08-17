@@ -13,7 +13,12 @@ import com.github.blockand.ext.MyListItem;
 
 import org.greenrobot.eventbus.EventBus;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.PrintStream;
 import java.lang.reflect.Method;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * Created by saikou on 2016/8/12 0012.
@@ -43,6 +48,7 @@ public class PhoneStateReceiver extends BroadcastReceiver {
                     UpdateDBEvent updateDBEvent = new UpdateDBEvent();
                     updateDBEvent.ListItem = myListItem;
                     EventBus.getDefault().post(updateDBEvent);
+                    logging(context.getFilesDir(), incomingNumber);
                     if (killCall(context)) { // Using the method defined earlier
                         context.startService(new Intent(context, RingtoneService.class));
                     } else {
@@ -70,5 +76,25 @@ public class PhoneStateReceiver extends BroadcastReceiver {
             return false;
         }
         return true;
+    }
+
+    private void logging(File filesDir, String incomingNumber) {
+        PrintStream printStream = null;
+        try {
+            printStream = new PrintStream(new FileOutputStream(new File(filesDir, LoggerActivity.LOGGER_FILE), true), true, "UTF-8");
+            StringBuffer stringBuffer = new StringBuffer();
+            String s = stringBuffer.append("[")
+                    .append(new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date()))
+                    .append("] call-in ")
+                    .append(incomingNumber)
+                    .append("\n").toString();
+            printStream.print(s);
+            printStream.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            if (printStream != null) {
+                printStream.close();
+            }
+        }
     }
 }
